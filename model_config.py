@@ -188,48 +188,34 @@ model = dict(
                 iou_threshold=0.7 # NMS threshold
                 ),
             min_bbox_size=0),
-        rcnn=dict(score_thr=0.05, nms=dict(type="nms", iou_threshold=0.7), max_per_img=100),
+        rcnn=dict(score_thr=0.001, nms=dict(type="nms", iou_threshold=0.7), max_per_img=100),
     )
 )
 
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+
 albu_train_transforms = [
-#     dict(
-#         type="OneOf",
-#         transforms=[
-#             dict(type="HueSaturationValue", hue_shift_limit=10, sat_shift_limit=35, val_shift_limit=25),
-#             dict(type="RandomGamma"),
-#             dict(type="CLAHE"),
-#         ],
-#         p=0.5,
-#     ),
     dict(
-        type="OneOf",
-        transforms=[
-            dict(type="RandomBrightnessContrast", brightness_limit=0.1, contrast_limit=0.1),
-            dict(type="RGBShift", r_shift_limit=5, g_shift_limit=5, b_shift_limit=5),
-        ],
-        p=0.5,
-    ),
+        type='RandomBrightnessContrast',
+        brightness_limit=[0.0, 0.1],
+        contrast_limit=[0.0, 0.1],
+        p=0.3),
     dict(
         type="OneOf",
         transforms=[
             dict(type="Blur"),
-            dict(type="MotionBlur"),
             dict(type="GaussNoise"),
-            dict(type="ImageCompression", quality_lower=85),
         ],
-        p=0.4,
+        p=0.3,
     ),
-#     dict(
-#         type='ShiftScaleRotate',
-#         shift_limit=0.0625,
-#         scale_limit=0.0,
-#         rotate_limit=0,
+    dict(
+        type='ShiftScaleRotate',
+        shift_limit=0.0625,
+        scale_limit=0.1,
+        rotate_limit=5,
 #         interpolation=1,
-#         p=0.5),
-#     dict(type="RandomBBoxesSafeCrop", num_rate=(0.5, 1.0), erosion_rate=0.2),
+        p=0.5),
 ]
 
 train_pipeline = [
@@ -238,23 +224,22 @@ train_pipeline = [
     dict(type='Resize', img_scale=(1500, 1500), keep_ratio=True),
     dict(type="RandomFlip", flip_ratio=0.5),
     dict(type="Pad", size_divisor=32),
-#     dict(
-#         type="Albu",
-#         transforms=albu_train_transforms,
-#         bbox_params=dict(
-#             type='BboxParams',
-#             format='pascal_voc',
-#             label_fields=['gt_labels'],
-#             min_visibility=0.0,
-#             filter_lost_elements=True),
-#         keymap={
-#             'img': 'image',
-#             'gt_masks': 'masks',
-#             'gt_bboxes': 'bboxes'
-#         },
-#         update_pad_shape=False,
-#         skip_img_without_anno=True
-#     ),
+    dict(
+        type="Albu",
+        transforms=albu_train_transforms,
+        bbox_params=dict(
+            type='BboxParams',
+            format='pascal_voc',
+            label_fields=['gt_labels'],
+            min_visibility=0.0,
+            filter_lost_elements=True),
+        keymap={
+            'img': 'image',
+            'gt_bboxes': 'bboxes'
+        },
+        update_pad_shape=False,
+        skip_img_without_anno=True
+    ),
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(type="Collect", keys=["img", "gt_bboxes", "gt_labels"]),
@@ -299,10 +284,10 @@ data = dict(
     workers_per_gpu=11,
     train=dict(
         type='ClassBalancedDataset',
-        oversample_thr=0.05,
+        oversample_thr=0.06,
         dataset=dict(
             type='CocoDataset',
-            ann_file='fold_0_abnormal_train_coco_org.json',
+            ann_file='fold_1_abnormal_train_coco_org.json',
             img_prefix=data_root,
             classes=classes,
             pipeline=train_pipeline)
@@ -310,17 +295,17 @@ data = dict(
     val=dict(
         type='CocoDataset',
         samples_per_gpu=batch_size,
-        ann_file='fold_0_abnormal_valid_coco_org.json',
+        ann_file='fold_1_abnormal_valid_coco_org.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline),
     test=dict(
         type='CocoDataset',
-        ann_file='coco/test_coco_org.json',
+        samples_per_gpu=batch_size,
+        ann_file='test_coco_org.json',
         img_prefix='test_2x/test/',
         classes=classes,
-        pipeline=test_pipeline,
-        samples_per_gpu=batch_size)
+        pipeline=test_pipeline)
         )
 
 evaluation = dict(interval=1, metric=['bbox'])
@@ -344,5 +329,5 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
-work_dir = 'checkpoints_2x/'
+work_dir = 'checkpoints_2x_aug/'
 gpu_ids = [0]
