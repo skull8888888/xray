@@ -20,19 +20,19 @@ cls: 0.243
 cls_pw: 0.631
 obj: 0.301
 obj_pw: 0.911
-iou_t: 0.2
+iou_t: 0.4
 anchor_t: 2.91
 # anchors: 3.63
 fl_gamma: 0.0
-hsv_h: 0.0
-hsv_s: 0.0
-hsv_v: 0.0
-degrees: 0.05
+hsv_h: 0.0138
+hsv_s: 0.3
+hsv_v: 0.3
+degrees: 3
 translate: 0.01
-scale: 0.05
+scale: 0.1
 shear: 0.0
 perspective: 0.0
 flipud: 0.0
 fliplr: 0.5
-mosaic: 0.0
+mosaic: 0.3
 mixup: 0.0

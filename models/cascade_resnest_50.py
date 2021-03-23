@@ -6,12 +6,12 @@ model = dict(
         type='ResNeSt',
         stem_channels=64,
         depth=50,
-        radix=2,
-        reduction_factor=4,
-        avg_down_stride=True,
+#         radix=2,
+#         reduction_factor=4,
+#         avg_down_stride=True,
         num_stages=4,
         out_indices=(0, 1, 2, 3),
-        frozen_stages=1,
+        frozen_stages=0,
         norm_cfg=dict(type='BN', requires_grad=True),
         norm_eval=False,
         style='pytorch'),
@@ -126,11 +126,11 @@ model = dict(
         rpn_proposal=dict( # The config to generate proposals during training
             nms_across_levels=False,  
             nms_pre=2000,  # The number of boxes before NMS
-            nms_post=1000,  # The number of boxes to be kept by NMS, Only work in `GARPNHead`.
-            max_per_img=1000,  # The number of boxes to be kept after NMS.
+            nms_post=2000,  # The number of boxes to be kept by NMS, Only work in `GARPNHead`.
+            max_per_img=2000,  # The number of boxes to be kept after NMS.
             nms=dict( # Config of nms
                 type='nms',  #Type of nms
-                iou_threshold=0.6 # NMS threshold
+                iou_threshold=0.7 # NMS threshold
                 ),
             min_bbox_size=0),
         rcnn=[
@@ -178,7 +178,7 @@ model = dict(
     test_cfg = dict(
         rpn=dict( # The config to generate proposals during training
             nms_across_levels=False,  
-            nms_pre=2000,  # The number of boxes before NMS
+            nms_pre=1000,  # The number of boxes before NMS
             nms_post=1000,  # The number of boxes to be kept by NMS, Only work in `GARPNHead`.
             max_per_img=1000,  # The number of boxes to be kept after NMS.
             nms=dict( # Config of nms
@@ -186,6 +186,11 @@ model = dict(
                 iou_threshold=0.7 # NMS threshold
                 ),
             min_bbox_size=0),
-        rcnn=dict(score_thr=0.001, nms=dict(type="nms", iou_threshold=0.7), max_per_img=100),
+        rcnn=dict(
+            score_thr=0.01, 
+            nms=dict(
+                type="nms", 
+                iou_threshold=0.5), 
+            max_per_img=300),
     )
 )

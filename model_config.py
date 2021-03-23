@@ -6,8 +6,8 @@ img_norm_cfg = dict(
 albu_train_transforms = [
     dict(
         type='RandomBrightnessContrast',
-        brightness_limit=[0.0, 0.05],
-        contrast_limit=[0.0, 0.05],
+        brightness_limit=[0.0, 0.1],
+        contrast_limit=[0.0, 0.1],
         p=0.3),
 #     dict(
 #         type="OneOf",
@@ -21,12 +21,12 @@ albu_train_transforms = [
         type='ShiftScaleRotate',
         shift_limit=0.0,
         scale_limit=0.05,
-        rotate_limit=4,
+        rotate_limit=3,
 #         interpolation=1,
         p=0.5),
 ]
 
-img_size = 1024
+img_size = 1500
 train_pipeline = [
     dict(type="LoadImageFromFile"),
     dict(type="LoadAnnotations", with_bbox=True),
@@ -85,32 +85,32 @@ classes = (
     "Pulmonary fibrosis")
 
 dataset_type = 'CocoDataset'
-data_root = 'vinbigdata/train/'
-batch_size = 4
+data_root = 'vinbigdata/images/train/'
+batch_size = 8
 
 data = dict(
     samples_per_gpu=batch_size,
     workers_per_gpu=batch_size,
-#     train=dict(
-#         type='ClassBalancedDataset',
-#         oversample_thr=0.06,
-#         dataset=dict(
-#             type='CocoDataset',
-#             ann_file='all_abnormal_2x_coco.json',
-#             img_prefix=data_root,
-#             classes=classes,
-#             pipeline=train_pipeline)
-#     ),
     train=dict(
-        type='CocoDataset',
-        ann_file='fold_0_abnormal_train_org_size.json',
-        img_prefix=data_root,
-        classes=classes,
-        pipeline=train_pipeline),
+        type='ClassBalancedDataset',
+        oversample_thr=0.05,
+        dataset=dict(
+            type='CocoDataset',
+            ann_file='fold_3_abnormal_train_org_size.json',
+            img_prefix=data_root,
+            classes=classes,
+            pipeline=train_pipeline)
+    ),
+#     train=dict(
+#         type='CocoDataset',
+#         ann_file='fold_3_abnormal_train_org_size.json',
+#         img_prefix=data_root,
+#         classes=classes,
+#         pipeline=train_pipeline),
     val=dict(
         type='CocoDataset',
         samples_per_gpu=batch_size,
-        ann_file='fold_0_abnormal_valid_org_size.json',
+        ann_file='fold_3_abnormal_valid_org_size.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline),
@@ -144,5 +144,5 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
-work_dir = 'checkpoints_1024_fold_0/'
+work_dir = 'checkpoints_1500_resnest50_fold_3/'
 gpu_ids = [0,1]
