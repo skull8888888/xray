@@ -28,11 +28,11 @@ hsv_h: 0.0138
 hsv_s: 0.3
 hsv_v: 0.3
 degrees: 3
-translate: 0.01
-scale: 0.1
+translate: 0.05
+scale: 0.05
 shear: 0.0
 perspective: 0.0
 flipud: 0.0
 fliplr: 0.5
-mosaic: 0.3
+mosaic: 0.0
 mixup: 0.0
