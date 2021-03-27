@@ -1,8 +1,9 @@
 python test.py \
---weights runs/train/exp6/weights/best.pt \
---data data/fold_4_vinbigdata.yaml \
+--weights runs_yolo5x6_1024/train/exp3/weights/best.pt \
+--batch 20 \
+--data data/test.yaml \
 --img-size 1024  \
---conf-thres 0.01 \
---iou-thres 0.5 \
+--conf-thres 0.001 \
+--iou-thres 0.6 \
 --task test \
 --augment --save-txt --save-conf
