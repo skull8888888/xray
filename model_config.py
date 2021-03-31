@@ -1,4 +1,5 @@
 _base_ = 'models/vfnet.py'
+# _base_ = 'models/vfnet_resnext.py'
 
 fp16 = dict(loss_scale=512.)
 img_norm_cfg = dict(
@@ -20,8 +21,8 @@ albu_train_transforms = [
     ),
     dict(
         type='ShiftScaleRotate',
-        shift_limit=0.01,
-        scale_limit=0.05,
+        shift_limit=0.05,
+        scale_limit=0.01,
         rotate_limit=3,
 #         interpolation=1,
         p=0.5),
@@ -62,7 +63,7 @@ test_pipeline = [
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
-            dict(type='RandomFlip'),
+            dict(type='RandomFlip', flip_ratio=0.0),
             dict(type='Normalize',**img_norm_cfg),
             dict(type='Pad', size_divisor=32),
             dict(type="DefaultFormatBundle"),
@@ -104,7 +105,7 @@ data = dict(
     ),
 #     train=dict(
 #         type='CocoDataset',
-#         ann_file='fold_3_abnormal_train_org_size.json',
+#         ann_file='folds/fold_{fold}_train.json',
 #         img_prefix=data_root,
 #         classes=classes,
 #         pipeline=train_pipeline),
@@ -118,11 +119,12 @@ data = dict(
     test=dict(
         type='CocoDataset',
         samples_per_gpu=batch_size,
-        ann_file='folds/test_coco_org.json',
-        img_prefix='vinbigdata/images/test/',
+        
+#         ann_file='folds/test_coco_org.json',
+#         img_prefix='vinbigdata/images/test/',
 
-#         ann_file='folds/fold_3_val.json',
-#         img_prefix=data_root,
+        ann_file='folds/fold_0_val.json',
+        img_prefix=data_root,
         
         classes=classes,
         pipeline=test_pipeline)
@@ -136,7 +138,7 @@ lr_config = dict(
     policy='step',
     warmup='linear',
     warmup_iters=500,
-    warmup_ratio=0.01,
+    warmup_ratio=0.001,
     step=[8, 11]
 )
 
@@ -144,11 +146,11 @@ runner = dict(type='EpochBasedRunner', max_epochs=12)
 
 checkpoint_config = dict(interval=1)
 
-log_config = dict(interval=25, hooks=[dict(type='TextLoggerHook'), dict(type='TensorboardLoggerHook')])
+log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook'), dict(type='TensorboardLoggerHook')])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from='vfnet_r50_fpn.pth'
 resume_from=None
 workflow = [('train', 1)]
-work_dir = 'checkpoints/fold_{fold}/'
+work_dir = 'checkpoints/fewer_fold_{fold}/'
 gpu_ids = [0]
